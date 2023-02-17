@@ -248,6 +248,9 @@ int main() {
     case PQType::Unordered:
         testPriorityQueue<UnorderedPQ>();
         break;
+    case PQType::Sorted:
+        testPriorityQueue<SortedPQ>();
+        break;
     default:
         std::cout << "Unrecognized PQ type " << pqType << " in main." << std::endl
                   << "Perhaps you forgot to add tests for all four PQ types." << std::endl;

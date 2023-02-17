@@ -24,21 +24,23 @@ public:
     explicit SortedPQ(COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
         // TODO: Implement this function, or verify that it is already done
+
+        // i think this is done
+
     } // SortedPQ
 
 
     // Description: Construct a PQ out of an iterator range with an optional
     //              comparison functor.
     // Runtime: O(n log n) where n is number of elements in range.
-    // TODO: When you implement this function, uncomment the parameter names.
     template<typename InputIterator>
     SortedPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        (void)start; // TODO: Delete this line
-        (void)end;   // TODO: Delete this line
+        while(start != end) {
+            data[start] = *start;
+            start++;
+        }
+        std::sort(begin(data), end(data), this->compare());
     } // SortedPQ
 
 
@@ -51,10 +53,13 @@ public:
     // Description: Add a new element to the PQ.
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
-        // TODO: Implement this function
+        size_t i;
+        for(i = data.size() - 1; (i >= 0 && this->compare(val, data[i])); i--) {
+            data[i + 1] = data[i];
+        }
 
-        // This line is present only so that this provided file compiles.
-        (void)val; // TODO: Delete this line
+        data[i + 1] = val;
+
     } // push()
 
 
@@ -66,7 +71,7 @@ public:
     //       this project.
     // Runtime: Amortized O(1)
     virtual void pop() {
-        // TODO: Implement this function
+        data.pop_back();
     } // pop()
 
 
@@ -77,11 +82,7 @@ public:
     //              element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp; // TODO: Delete this line
-        return temp;      // TODO: Delete or change this line
+        return data.back();
     } // top()
 
 
@@ -105,16 +106,13 @@ public:
     //              and 'rebuilds' the PQ by fixing the PQ invariant.
     // Runtime: O(n log n)
     virtual void updatePriorities() {
-        // TODO: Implement this function
+        std::sort(begin(data), end(data), COMP_FUNCTOR());
     } // updatePriorities()
 
 
 private:
     // Note: This vector *must* be used for your PQ implementation.
     std::vector<TYPE> data;
-
-    // TODO: Add any additional member functions you require here.
-    //       You are NOT allowed to add any new member variables.
 
 }; // SortedPQ
 
