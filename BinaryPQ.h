@@ -19,7 +19,6 @@ public:
     // Runtime: O(1)
     explicit BinaryPQ(COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function, or verify that it is already done
     } // BinaryPQ
 
 
@@ -29,11 +28,11 @@ public:
     template<typename InputIterator>
     BinaryPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        (void)start; // TODO: Delete this line
-        (void)end;   // TODO: Delete this line
+        while(start != end) {
+            data.push_back(*start);
+            start++;
+        }
+        updatePriorities();
     } // BinaryPQ
 
 
@@ -48,17 +47,18 @@ public:
     //              invariant.
     // Runtime: O(n)
     virtual void updatePriorities() {
-        // TODO: Implement this function.
+        size_t maxVal = (size_t)-1;
+        for(size_t i = data.size()/2; i < maxVal; i--) {
+            fixDown(i);
+        }
     } // updatePriorities()
 
 
     // Description: Add a new element to the PQ.
     // Runtime: O(log(n))
     virtual void push(const TYPE &val) {
-        // TODO: Implement this function.
-
-        // This line is present only so that this provided file compiles.
-        (void)val; // TODO: Delete this line
+        data.push_back(val);
+        fixUp(data.size() - 1);
     } // push()
 
 
@@ -70,7 +70,9 @@ public:
     //       this project.
     // Runtime: O(log(n))
     virtual void pop() {
-        // TODO: Implement this function.
+        data[0] = data.back();
+        data.pop_back();
+        fixDown(0);
     } // pop()
 
 
@@ -80,29 +82,21 @@ public:
     //              that might make it no longer be the most extreme element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        // TODO: Implement this function.
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp; // TODO: Delete this line
-        return temp;      // TODO: Delete or change this line
+        return data.front();
     } // top()
 
 
     // Description: Get the number of elements in the PQ.
     // Runtime: O(1)
     virtual std::size_t size() const {
-        // TODO: Implement this function. Might be very simple,
-        // depending on your implementation.
-        return 0; // TODO: Delete or change this line
+        return data.size();
     } // size()
 
 
     // Description: Return true if the PQ is empty.
     // Runtime: O(1)
     virtual bool empty() const {
-        // TODO: Implement this function. Might be very simple,
-        // depending on your implementation.
-        return true; // TODO: Delete or change this line
+        return data.empty();
     } // empty()
 
 
@@ -112,6 +106,38 @@ private:
     // NOTE: You are not allowed to add any member variables. You don't need
     //       a "heapSize", since you can call your own size() member
     //       function, or check data.size().
+
+    virtual void fixUp(size_t index) {
+        if(index == 0 || !this->compare(data[(index - 1)/2], data[index])) {
+            return;
+        }
+        else {
+            std::swap(data[(index - 1)/2], data[index]);
+            fixUp((index - 1)/2);
+        }
+    }
+
+    virtual void fixDown(size_t index) {
+        // if you're at a leaf node
+        if(index >= (data.size()/2)) {
+            return;
+        }
+        size_t largestIndex = index;
+        // check if the left child is bigger than the current node, update index if so
+        if(this->compare(data[index], data[(2*index) + 1])) {
+            largestIndex = (2*index) + 1;
+        }
+        // make sure right child exists, then do the same as above with current largest
+        if(((2*index) + 2) < data.size() && this->compare(data[largestIndex], data[(2*index) + 2])) {
+            largestIndex = (2*index) + 2;
+        }
+        // if a larger node was found, swap and fixDown next node, otherwise return
+        if(largestIndex == index) return;
+        else {
+            std::swap(data[index], data[largestIndex]);
+            fixDown(largestIndex);
+        }
+    }
 
     // TODO: Add any additional member functions you require here. For
     //       instance, you might add fixUp() and fixDown().

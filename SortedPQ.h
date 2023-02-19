@@ -23,10 +23,6 @@ public:
     // Runtime: O(1)
     explicit SortedPQ(COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function, or verify that it is already done
-
-        // i think this is done
-
     } // SortedPQ
 
 
