@@ -37,10 +37,10 @@ public:
     SortedPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
         while(start != end) {
-            data[start] = *start;
+            data.push_back(*start);
             start++;
         }
-        std::sort(begin(data), end(data), this->compare());
+        std::sort(data.begin(), data.end(), this->compare);
     } // SortedPQ
 
 
@@ -53,13 +53,8 @@ public:
     // Description: Add a new element to the PQ.
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
-        size_t i;
-        for(i = data.size() - 1; (i >= 0 && this->compare(val, data[i])); i--) {
-            data[i + 1] = data[i];
-        }
-
-        data[i + 1] = val;
-
+        auto iter = std::lower_bound(data.begin(), data.end(), val, this->compare);
+        data.insert(iter, 1, val);
     } // push()
 
 
@@ -106,7 +101,7 @@ public:
     //              and 'rebuilds' the PQ by fixing the PQ invariant.
     // Runtime: O(n log n)
     virtual void updatePriorities() {
-        std::sort(begin(data), end(data), COMP_FUNCTOR());
+        std::sort(data.begin(), data.end(), this->compare);
     } // updatePriorities()
 
 
