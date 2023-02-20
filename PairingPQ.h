@@ -232,7 +232,15 @@ public:
         // cut off the two trees
         parentNode->child = nullptr;
         node->parent = nullptr;
+        if(node->sibling != nullptr) {
+            Node* sibling = node->sibling;
+            while(sibling->sibling != node) {
+                sibling = sibling->sibling;
+            }
+            sibling->sibling = nullptr;
+        }
         node->sibling = nullptr;
+        
         //
 
         meldThis(root, node);
