@@ -84,7 +84,7 @@ void testPrimitiveOperations() {
     assert(eecsPQ.size() == 1);
     assert(eecsPQ.top() == 3);
     assert(not eecsPQ.empty());
-
+    
     eecsPQ.pop();
     assert(eecsPQ.size() == 0);
     assert(eecsPQ.empty());
