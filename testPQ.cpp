@@ -190,7 +190,10 @@ void testPairing() {
 
         std::cout << "Basic tests done." << std::endl;
 
-        // TODO: Add more code to test addNode, updateElt, etc.
+        std::cout << "User made tests running.\n";
+
+        // TODO: how to call addnode?
+        Node* newNode = pq1.addNode(5);
 
         // That { above creates a scope, and our pairing heaps will fall out of
         //   scope at the matching } below.
