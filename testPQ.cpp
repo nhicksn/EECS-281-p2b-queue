@@ -193,7 +193,15 @@ void testPairing() {
         std::cout << "User made tests running.\n";
 
         // TODO: how to call addnode?
-        Node* newNode = pq1.addNode(5);
+        PairingPQ<int> ppq1;
+        PairingPQ<int>::Node *temp = ppq1.addNode(5);
+        assert(temp->getElt() == 5);
+        assert(ppq1.size() == 1);
+        assert(ppq1.top() == 5);
+        (ppq1.updateElt(ppq1.addNode(2), 43));
+        assert(ppq1.top() == 43);
+        ppq1.pop();
+        assert(ppq1.top() == 5);
 
         // That { above creates a scope, and our pairing heaps will fall out of
         //   scope at the matching } below.
