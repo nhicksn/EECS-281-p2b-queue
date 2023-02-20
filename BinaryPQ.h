@@ -47,10 +47,10 @@ public:
     //              invariant.
     // Runtime: O(n)
     virtual void updatePriorities() {
-        size_t maxVal = (size_t)-1;
-        for(size_t i = data.size()/2; i < maxVal; i--) {
+        for(size_t i = data.size()/2; i > 0; i--) {
             fixDown(i);
         }
+        fixDown(0);
     } // updatePriorities()
 
 
@@ -103,9 +103,6 @@ public:
 private:
     // Note: This vector *must* be used for your PQ implementation.
     std::vector<TYPE> data;
-    // NOTE: You are not allowed to add any member variables. You don't need
-    //       a "heapSize", since you can call your own size() member
-    //       function, or check data.size().
 
     virtual void fixUp(size_t index) {
         if(index == 0 || !this->compare(data[(index - 1)/2], data[index])) {
@@ -138,9 +135,6 @@ private:
             fixDown(largestIndex);
         }
     }
-
-    // TODO: Add any additional member functions you require here. For
-    //       instance, you might add fixUp() and fixDown().
 }; // BinaryPQ
 
 

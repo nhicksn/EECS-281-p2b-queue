@@ -18,8 +18,6 @@ public:
     // Each node within the pairing heap
     class Node {
         public:
-            // TODO: After you add add one extra pointer (see below), be sure
-            //       to initialize it here.
             explicit Node(const TYPE &val)
                 : elt{ val }, child{ nullptr }, sibling{ nullptr }, parent{ nullptr }
             {}
@@ -42,7 +40,7 @@ public:
             TYPE elt;
             Node *child;
             Node *sibling;
-            Node *parent; // idk if this should be parent or previous
+            Node *parent;
     }; // Node
 
 
@@ -225,8 +223,8 @@ public:
         if(node == nullptr) { return; }
         node->elt = new_value;
         Node* parentNode = node->parent;
-        // check if the node being updates is the root, or if it's parent value is still
-        // more extreme. In either case, nothing else needs to be done
+        // check if the node being updated is the root, or if it's parent value is still
+        // more extreme or equal. In either case, nothing else needs to be done
         if(parentNode == nullptr || !this->compare(parentNode->elt, new_value)) {
             return;
         }
@@ -234,6 +232,7 @@ public:
         // cut off the two trees
         parentNode->child = nullptr;
         node->parent = nullptr;
+        node->sibling = nullptr;
         //
 
         meldThis(root, node);
