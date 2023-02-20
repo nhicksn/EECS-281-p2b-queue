@@ -232,6 +232,7 @@ public:
         // cut off the two trees
         parentNode->child = nullptr;
         node->parent = nullptr;
+        // added according to IA notes
         if(node->sibling != nullptr) {
             Node* sibling = node->sibling;
             while(sibling->sibling != node) {
@@ -239,6 +240,7 @@ public:
             }
             sibling->sibling = nullptr;
         }
+        //              //
         node->sibling = nullptr;
         
         //
