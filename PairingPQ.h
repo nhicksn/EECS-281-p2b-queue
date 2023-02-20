@@ -70,23 +70,26 @@ public:
     // Description: Copy constructor.
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other) :
-        BaseClass{ other.compare } {
-        // TODO: Implement this function.
-        // NOTE: The structure does not have to be identical to the original,
-        //       but it must still be a valid pairing heap.
+        BaseClass{ other.compare }, root{ nullptr }, count{ 0 } {
+        std::deque<Node*> queue;
+        queue.push_back(other.root);
+        while(!queue.empty()) {
+            Node* current = queue.front(); queue.pop_front();
+            if(current->child != nullptr) { queue.push_back(current->child); }
+            if(current->sibling != nullptr) { queue.push_back(current->sibling); }
+            addNode(current->elt);
+        }
     } // PairingPQ()
 
 
     // Description: Copy assignment operator.
     // Runtime: O(n)
     PairingPQ &operator=(const PairingPQ &rhs) {
-        // TODO: Implement this function.
-        // HINT: Use the copy-swap method from the "Arrays and Containers"
-        //       lecture.
+        PairingPQ temp(rhs);
 
-        // This line is present only so that this provided file compiles.
-        (void)rhs; // TODO: Delete this line
-
+        std::swap(count, temp.count);
+        std::swap(root, temp.root);
+        
         return *this;
     } // operator=()
 
@@ -94,7 +97,15 @@ public:
     // Description: Destructor
     // Runtime: O(n)
     ~PairingPQ() {
-        // TODO: Implement this function.
+        if(root == nullptr) { return; }
+        std::deque<Node*> queue;
+        queue.push_back(root);
+        while(!queue.empty()) {
+            Node* current = queue.front(); queue.pop_front();
+            if(current->child != nullptr) { queue.push_back(current->child); }
+            if(current->sibling != nullptr) { queue.push_back(current->sibling); }
+            delete current;
+        }
     } // ~PairingPQ()
 
 
@@ -104,7 +115,18 @@ public:
     //              and create new ones!
     // Runtime: O(n)
     virtual void updatePriorities() {
-        // TODO: Implement this function.
+        if(root == nullptr) { return; }
+        std::deque<Node*> queue;
+        queue.push_back(root);
+        root = nullptr;
+        Node* current;
+        while(!queue.empty()) {
+            current = queue.front(); queue.pop_front();
+            if(current->child != nullptr) { queue.push_back(current->child); }
+            if(current->sibling != nullptr) { queue.push_back(current->sibling); }
+            current->child = nullptr; current->sibling = nullptr; current->parent = nullptr;
+            meldThis(root, current);
+        }
     } // updatePriorities()
 
 
@@ -126,40 +148,40 @@ public:
     //       exceptions in this project.
     // Runtime: Amortized O(log(n))
     virtual void pop() {
-        std::deque<Node*> queue;
         Node* child = root->child;
         delete root;
         if(child == nullptr) {
-            this->root = nullptr;
+            root = nullptr;
             count = 0;
             return;
         }
+
         Node* temp = child;
         child->parent = nullptr;
         size_t originalCount = count;
+        std::deque<Node*> queue;
 
         // push all children to a queue, separating them
         while(child != nullptr) {
             queue.push_back(child);
             child = child->sibling;
             temp->sibling = nullptr;
+            temp->parent = nullptr;
             temp = child;
         }
 
         Node* root1;
         Node* root2;
-        PairingPQ pqResult;
-        pqResult.root = queue.front();
+        // in case the queue has only size 1
+        Node* resultRoot = queue.front();
         while(queue.size() > 1) {
             root1 = queue.front(); queue.pop_front();
             root2 = queue.front(); queue.pop_front();
-            PairingPQ pq1; pq1.root = root1;
-            PairingPQ pq2; pq2.root = root2;
-            pqResult = meld(pq1, pq2);
-            queue.push_back(pqResult.root);
+            resultRoot = meld(root1, root2);
+            queue.push_back(resultRoot);
         }
 
-        this->root = pqResult.root;
+        this->root = resultRoot;
         count = originalCount - 1;
     } // pop()
 
@@ -205,18 +227,13 @@ public:
             return;
         }
 
-        // make a new pairing heap with the updated node as the root
-        PairingPQ pq;
-        pq.root = node;
-        //
-
         // cut off the two trees
         Node* parentNode = node->parent;
         parentNode->child = nullptr;
         node->parent = nullptr;
         //
 
-        meldThis(*this, pq);
+        meldThis(root, node);
     } // updateElt()
 
 
@@ -235,13 +252,8 @@ public:
         }
         // if the current pq is not empty
         else {
-            // create a new pairing heap with the new value
-            PairingPQ pq;
-            pq.root = newNode;
-            //
-
             // meld the new heap with the exising one
-            meldThis(*this, pq);
+            meldThis(root, newNode);
         }
         count++;
         return newNode;
@@ -250,35 +262,31 @@ public:
 
 private:
 
-    // returns a new priority queue which melded the two inputs
-    PairingPQ meld(PairingPQ& pq1, PairingPQ& pq2) {
-        Node* pq1Root = pq1.root;
-        Node* pq2Root = pq2.root;
-        PairingPQ pq;
+    // returns a new root node which melded the two inputs
+    Node* meld(Node* pq1Root, Node* pq2Root) {
+        Node* result;
         // if the most extreme element of pq1 is less extreme than that of pq2
-        if(this->compare(pq1.top(), pq2.top())) {
+        if(this->compare(pq1Root->elt, pq2Root->elt)) {
             pq1Root->sibling = pq2Root->child;
             pq1Root->parent = pq2Root;
             pq2Root->child = pq1Root;
-            pq.root = pq2Root;
+            result = pq2Root;
         }
         // if the most extreme element of pq1 is equal to or more extreme than that of pq2
         else {
             pq2Root->sibling = pq1Root->child;
             pq2Root->parent = pq1Root;
             pq1Root->child = pq2Root;
-            pq.root = pq1Root;
+            result = pq1Root;
         }
-        pq.count = pq1.count + pq2.count;
-        return pq;
+        return result;
     }
 
     // modifies this
-    void meldThis(PairingPQ& pq1, PairingPQ& pq2) {
-        Node* pq1Root = pq1.root;
-        Node* pq2Root = pq2.root;
+    void meldThis(Node* pq1Root, Node* pq2Root) {
+        if(pq1Root == nullptr) { root = pq2Root; return; }
         // if the most extreme element of pq1 is less extreme than that of pq2
-        if(this->compare(pq1.top(), pq2.top())) {
+        if(this->compare(pq1Root->elt, pq2Root->elt)) {
             pq1Root->sibling = pq2Root->child;
             pq1Root->parent = pq2Root;
             pq2Root->child = pq1Root;
@@ -291,7 +299,6 @@ private:
             pq1Root->child = pq2Root;
             root = pq1Root;
         }
-        count = pq1.count + pq2.count;
     }
 
     Node* root;

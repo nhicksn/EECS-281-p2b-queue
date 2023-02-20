@@ -76,6 +76,8 @@ void testPrimitiveOperations() {
     Eecs281PQ<int>& eecsPQ = pq;
 
     eecsPQ.push(3);
+    assert(eecsPQ.size() == 1);
+    assert(eecsPQ.top() == 3);
     eecsPQ.push(4);
     assert(eecsPQ.size() == 2);
     assert(eecsPQ.top() == 4);
@@ -104,10 +106,8 @@ void testHiddenData() {
     };
 
     struct HiddenDataComp {
-        bool operator()(HiddenData const&, HiddenData const&) const {
-            // TODO: Finish this comparator; when you do, give the parameters
-            //   names in the line above
-            return false;
+        bool operator()(HiddenData const& data1, HiddenData const& data2) const {
+            return data1.data < data2.data;
         }
     };
 
