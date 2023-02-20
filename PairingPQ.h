@@ -150,6 +150,8 @@ public:
     virtual void pop() {
         Node* child = root->child;
         delete root;
+
+        // if there was only one node in the tree
         if(child == nullptr) {
             root = nullptr;
             count = 0;
@@ -158,7 +160,6 @@ public:
 
         Node* temp = child;
         child->parent = nullptr;
-        size_t originalCount = count;
         std::deque<Node*> queue;
 
         // push all children to a queue, separating them
@@ -172,8 +173,10 @@ public:
 
         Node* root1;
         Node* root2;
-        // in case the queue has only size 1
+
+        // set to queue.front() in case the queue has only size 1
         Node* resultRoot = queue.front();
+
         while(queue.size() > 1) {
             root1 = queue.front(); queue.pop_front();
             root2 = queue.front(); queue.pop_front();
@@ -182,7 +185,7 @@ public:
         }
 
         this->root = resultRoot;
-        count = originalCount - 1;
+        count--;
     } // pop()
 
 
@@ -219,16 +222,16 @@ public:
     //
     // Runtime: As discussed in reading material.
     void updateElt(Node* node, const TYPE &new_value) {
+        if(node == nullptr) { return; }
         node->elt = new_value;
-        Node* parent = node->parent;
+        Node* parentNode = node->parent;
         // check if the node being updates is the root, or if it's parent value is still
         // more extreme. In either case, nothing else needs to be done
-        if(this->root == node || !this->compare(parent->elt, new_value)) {
+        if(parentNode == nullptr || !this->compare(parentNode->elt, new_value)) {
             return;
         }
 
         // cut off the two trees
-        Node* parentNode = node->parent;
         parentNode->child = nullptr;
         node->parent = nullptr;
         //
@@ -285,6 +288,7 @@ private:
     // modifies this
     void meldThis(Node* pq1Root, Node* pq2Root) {
         if(pq1Root == nullptr) { root = pq2Root; return; }
+        else if(pq2Root == nullptr) { root = pq1Root; return; }
         // if the most extreme element of pq1 is less extreme than that of pq2
         if(this->compare(pq1Root->elt, pq2Root->elt)) {
             pq1Root->sibling = pq2Root->child;
@@ -299,6 +303,7 @@ private:
             pq1Root->child = pq2Root;
             root = pq1Root;
         }
+        return;
     }
 
     Node* root;
