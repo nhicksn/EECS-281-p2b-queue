@@ -192,7 +192,6 @@ void testPairing() {
 
         std::cout << "User made tests running.\n";
 
-        // TODO: how to call addnode?
         PairingPQ<int> ppq1;
         PairingPQ<int>::Node *temp = ppq1.addNode(5);
         assert(temp->getElt() == 5);
