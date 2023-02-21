@@ -147,17 +147,18 @@ public:
     // Runtime: Amortized O(log(n))
     virtual void pop() {
         Node* child = root->child;
-        delete root;
 
         // if there was only one node in the tree
         if(child == nullptr) {
+            delete root;
             root = nullptr;
             count = 0;
             return;
         }
 
+        delete root;
+
         Node* temp = child;
-        child->parent = nullptr;
         std::deque<Node*> queue;
 
         // push all children to a queue, separating them
@@ -169,20 +170,15 @@ public:
             temp = child;
         }
 
-        Node* root1;
-        Node* root2;
-
-        // set to queue.front() in case the queue has only size 1
-        Node* resultRoot = queue.front();
+        Node* root1; Node* root2;
 
         while(queue.size() > 1) {
             root1 = queue.front(); queue.pop_front();
             root2 = queue.front(); queue.pop_front();
-            resultRoot = meld(root1, root2);
-            queue.push_back(resultRoot);
+            queue.push_back(meld(root1, root2));
         }
 
-        this->root = resultRoot;
+        this->root = queue.front();
         count--;
     } // pop()
 
@@ -229,23 +225,33 @@ public:
             return;
         }
 
-        // cut off the two trees
-        parentNode->child = nullptr;
-        node->parent = nullptr;
-        // added according to IA notes
-        if(node->sibling != nullptr) {
-            Node* sibling = node->sibling;
-            while(sibling->sibling != node) {
-                sibling = sibling->sibling;
-            }
-            sibling->sibling = nullptr;
+        // if the node is the leftmost child, but has a sibling
+        if(parentNode->child == node && node->sibling != nullptr) {
+            parentNode->child = node->sibling;
+            node->sibling = nullptr;
+            node->parent = nullptr;
+            meldThis(root, node);
         }
-        //              //
-        node->sibling = nullptr;
-        
-        //
 
-        meldThis(root, node);
+        // if the node is an only child
+        else if(parentNode->child == node && node->sibling == nullptr) {
+            parentNode->child = nullptr;
+            node->parent = nullptr;
+            meldThis(root, node);
+        }
+
+        // if the node is somewhere else
+        else {
+            Node* child = parentNode->child;
+            while(child->sibling != node) {
+                child = child->sibling;
+            }
+            child->sibling = node->sibling;
+            node->sibling = nullptr;
+            node->parent = nullptr;
+            meldThis(root, node);
+        }
+
     } // updateElt()
 
 
@@ -276,22 +282,21 @@ private:
 
     // returns a new root node which melded the two inputs
     Node* meld(Node* pq1Root, Node* pq2Root) {
-        Node* result;
         // if the most extreme element of pq1 is less extreme than that of pq2
         if(this->compare(pq1Root->elt, pq2Root->elt)) {
             pq1Root->sibling = pq2Root->child;
             pq1Root->parent = pq2Root;
             pq2Root->child = pq1Root;
-            result = pq2Root;
+            return pq2Root;
         }
         // if the most extreme element of pq1 is equal to or more extreme than that of pq2
         else {
             pq2Root->sibling = pq1Root->child;
             pq2Root->parent = pq1Root;
             pq1Root->child = pq2Root;
-            result = pq1Root;
+            return pq1Root;
         }
-        return result;
+        return pq1Root;
     }
 
     // modifies this
@@ -312,12 +317,10 @@ private:
             pq1Root->child = pq2Root;
             root = pq1Root;
         }
-        return;
     }
 
     Node* root;
     size_t count;
-
 };
 
 

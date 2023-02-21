@@ -202,6 +202,22 @@ void testPairing() {
         ppq1.pop();
         assert(ppq1.top() == 5);
 
+        std::cout << "Testing updateElt with siblings.\n";
+
+        PairingPQ<int> ppq2;
+        PairingPQ<int>::Node *np = ppq2.addNode(20);
+        ppq2.push(10);
+        PairingPQ<int>::Node *np2 = ppq2.addNode(8);
+        ppq2.push(7);
+        ppq2.push(6);
+        ppq2.updateElt(np2, 21);
+        assert(ppq2.top() == 21);
+        assert(ppq2.size() == 5);
+        ppq2.updateElt(np, 25);
+        assert(ppq2.top() == 25);
+        assert(ppq2.size() == 5);
+
+
         // That { above creates a scope, and our pairing heaps will fall out of
         //   scope at the matching } below.
         std::cout << "Calling destructors" << std::endl;
